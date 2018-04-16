@@ -1,94 +1,14 @@
 <!DOCTYPE html>
 <html>
-	<canvas id = "gameCanvas" width = "601" height = "601"></canvas>
+	<canvas id = "gameCanvas" width = "600" height = "600"></canvas>
 	<script>
 		
 		var c = document.getElementById("gameCanvas");
 		var cc = c.getContext("2d");
-		var cellSize = 200;
-		var board = [];
-		var xSprite = new Image;
-		xSprite.src = "sprites/X.png";
-		var oSprite = new Image;
-		oSprite.src = "sprites/O.png";
 
-		//
-
-		var turn = 1;
-
-		function placeCell(x, y) {
-			board[x][y] = turn;
-			if (board[x][y] == 0) {
-				console.log("Cell Occupied.");
-			} else {
-				if (turn == 1) {
-					turn = 2;
-				} else {
-					turn = 1;
-				}
-				drawBoard();
-			}
-		}
-
-		//
-
-		//1 == X, 2 == O
-
-		document.addEventListener("mousedown", getCell);
-
-		window.onload = function() {
-			startGame();
-		}
-
-		function startGame() {
-			clearBoard();
-			drawBoard();
-		}
-
-		function clearBoard() {
-			board = [];
-			for(var x = 0; x < 3; x++) {
-				var row = [];
-				for(var y = 0; y < 3; y++) {
-					row.push(0);
-				}
-				board.push(row);
-			}
-		}
-
-		function drawBoard() {
-			cc.fillStyle = "white";
-			cc.fillRect(0, 0, c.width, c.height);
-			cc.fillStyle = "black";
-			for(var i = 0; i < 4; i++) {
-				cc.fillRect(0, cellSize * i, c.width,  1);
-				cc.fillRect(cellSize * i, 0, 1, c.height);
-			}
-			for(var x = 0; x < 3; x++) {
-				for(var y = 0; y < 3; y++) {
-					if (board[x][y] == 1) {
-						cc.drawImage(xSprite, x * 200, y * 200, 200, 200);
-					} else if (board[x][y] == 2) {
-						cc.drawImage(oSprite, x * 200, y * 200, 200, 200);
-					}
-				}
-			}
-		}
-
-		function getCell(event) {
-			var marginOffset = 8;
-			var x = event.clientX - marginOffset;
-			var y = event.clientY - marginOffset;
-			if (x > 0 && x <= cellSize * 3 && y > 0 && y <= cellSize * 3) {
-				var xCell = Math.floor(x / cellSize);
-				var yCell = Math.floor(y / cellSize);
-				console.log(xCell, yCell, x, y);
-				placeCell(xCell, yCell);
-			} else {
-				console.log("Clicked Area Outside Of Board Range.");
-			}
-
-		}
+		cc.fillStyle = "lime";
+		cc.fillRect(0, 0, c.height, c.width);
+		console.log("Oofers");
 
 	</script>
 </html>

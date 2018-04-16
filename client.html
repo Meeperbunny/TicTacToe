@@ -47,8 +47,8 @@
 		document.addEventListener("mousedown", getCell);
 
 		window.onload = function() {
-			var lobby = GET("lobby");
-			var ip = "ws://localhost:5500/";
+			var lobby = prompt("LOBBY?");//GET("lobby");
+			var ip = "ws://" + prompt("IP?") + ":" + prompt("PORT?") + "/";
 			socket = new WebSocket(ip);
 
 			console.log(ip, lobby);

@@ -224,7 +224,9 @@ class Game {
 		if (this.grid.data[2] == this.grid.data[4] && this.grid.data[2] == this.grid.data[6]) win = this.grid.data[2];
 
 		if (win == States.X) return Returns.WinX;
-		if (win == States.O) return Returns.WinY;
+		if (win == States.O) return Returns.WinO;
+
+		else return 0;
 	}
 
 	do_move(posn, player) {
@@ -239,6 +241,7 @@ class Game {
 				else this.turn = States.X;
 
 				var win = this.checkWin();
+				console.log(win)
 
 				if (win != 0) return win;
 				else return Returns.Good;
@@ -315,18 +318,13 @@ class Player {
 	}
 }
 
-// const PORT = 5500;
-// const server = new WebSocket.Server({ port: PORT });
+const PORT = 5500;
+const server = new WebSocket.Server({ port: PORT });
 
 var lobbies = {};
 
-x = new Player({on: ()=>{}, send: ()=>{}});
-x.join("ABC")
-v = x.lobby.game.do_move(new Vector(0, 0), 1);
-console.log(v);
-
-// console.log(`Server listening on port ${PORT}`);
-// server.on("connection", function(client) {
-// 	console.log("new client");
-// 	new Player(client);
-// });
+console.log(`Server listening on port ${PORT}`);
+server.on("connection", function(client) {
+	console.log("new client");
+	new Player(client);
+});

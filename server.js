@@ -266,6 +266,11 @@ class Lobby {
 		console.log("NEW LOBBY")
 	}
 
+	refresh() {
+		this.playerX.socket.send("REFRESH");
+		this.playerO.socket.send("REFRESH");
+	}
+
 	join(player) {
 		if (!this.playerO) this.playerO = player;
 		this.playerO.lobby = this;
@@ -289,7 +294,7 @@ class Player {
 		if (lobbies[lobby]) lobbies[lobby].join(this);
 		else lobbies[lobby] = new Lobby(this);
 
-		this.socket.send("success");
+		this.socket.send("JOINED");
 	}
 
 	change(str_point) {
@@ -297,7 +302,8 @@ class Player {
 		console.log("change", point);
 
 		var resp = this.lobby.game.do_move(point, this.kind);
-		this.socket.send(resp.toString());
+		this.lobby.refresh();
+		this.socket.send(`RESULT|${resp}`);
 	}
 
 	query(str_point) {
@@ -305,7 +311,7 @@ class Player {
 		console.log("change", point);
 
 		var resp = this.lobby.game.grid.getPosn(point);
-		this.socket.send(resp.toString());
+		this.socket.send(`POINT|${point.x},${point.y}|${resp}`);
 	}
 
 	handle(message) {

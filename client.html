@@ -2,7 +2,15 @@
 <html>
 	<canvas id = "gameCanvas" width = "601" height = "601"></canvas>
 	<script>
-		
+
+		function GET(q,s) {
+			s = (s) ? s : window.location.search;
+			var re = new RegExp('&amp;'+q+'=([^&amp;]*)','i');
+			return (s=s.replace(/^\?/,'&amp;').match(re)) ?s=s[1] :s='';
+		}
+
+		var socket;
+
 		var c = document.getElementById("gameCanvas");
 		var cc = c.getContext("2d");
 		var cellSize = 200;
@@ -17,17 +25,19 @@
 		var turn = 1;
 
 		function placeCell(x, y) {
-			board[x][y] = turn;
-			if (board[x][y] == 0) {
-				console.log("Cell Occupied.");
-			} else {
-				if (turn == 1) {
-					turn = 2;
-				} else {
-					turn = 1;
-				}
-				drawBoard();
-			}
+			socket.send(`CHANGE|${x},${y}`);
+
+			// board[x][y] = turn;
+			// if (board[x][y] == 0) {
+			// 	console.log("Cell Occupied.");
+			// } else {
+			// 	if (turn == 1) {
+			// 		turn = 2;
+			// 	} else {
+			// 		turn = 1;
+			// 	}
+			// 	drawBoard();
+			// }
 		}
 
 		//
@@ -37,7 +47,45 @@
 		document.addEventListener("mousedown", getCell);
 
 		window.onload = function() {
-			startGame();
+			var lobby = GET("lobby");
+			var ip = "ws://localhost:5500/";
+			socket = new WebSocket(ip);
+
+			console.log(ip, lobby);
+
+			socket.onopen = function() {
+				socket.send(`JOIN|${lobby}`);
+			};
+
+			socket.onmessage = function(msg) {
+				console.log(msg);
+
+				data = msg.data.split("|");
+
+				if (data[0] == "JOINED") {
+					startGame();
+				}
+
+				if (data[0] == "POINT") {
+					var posn = data[1].split(",");
+					var val = parseInt(data[2])
+					var x = parseInt(posn[0]);
+					var y = parseInt(posn[1]);
+
+					board[x][y] = val;
+					drawBoard();
+				}
+
+				if (data[0] == "REFRESH") {
+					clearBoard();
+				}
+
+				if (data[0] == "RESULT") {
+					var res = parseInt(data[1]);
+
+					clearBoard();
+				}
+			}
 		}
 
 		function startGame() {
@@ -51,6 +99,7 @@
 				var row = [];
 				for(var y = 0; y < 3; y++) {
 					row.push(0);
+					socket.send(`QUERY|${x},${y}`);
 				}
 				board.push(row);
 			}

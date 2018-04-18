@@ -230,7 +230,6 @@ class Game {
 	}
 
 	do_move(posn, player) {
-		console.log(posn, player)
 		if (this.turn == player) {
 			var at_point = this.grid.getPosn(posn);
 
@@ -241,7 +240,6 @@ class Game {
 				else this.turn = States.X;
 
 				var win = this.checkWin();
-				console.log(win)
 
 				if (win != 0) return win;
 				else return Returns.Good;
@@ -259,6 +257,7 @@ class Lobby {
 		this.game = new Game();
 		this.playerX = player;
 		this.playerO = null;
+		this.full = false;
 
 		this.playerX.lobby = this;
 		this.playerX.kind = States.X;
@@ -267,14 +266,18 @@ class Lobby {
 	}
 
 	refresh() {
-		this.playerX.socket.send("REFRESH");
-		this.playerO.socket.send("REFRESH");
+		if (this.full) {
+			this.playerX.socket.send("REFRESH");
+			this.playerO.socket.send("REFRESH");
+		}
 	}
 
 	join(player) {
+		console.log("Lobby FILLED");
 		if (!this.playerO) this.playerO = player;
 		this.playerO.lobby = this;
 		this.playerO.kind = States.O;
+		this.full = true;
 	}
 }
 
@@ -299,7 +302,6 @@ class Player {
 
 	change(str_point) {
 		var point = new Vector(parseInt(str_point[0]), parseInt(str_point[1]));
-		console.log("change", point);
 
 		var resp = this.lobby.game.do_move(point, this.kind);
 		this.lobby.refresh();
@@ -308,15 +310,14 @@ class Player {
 
 	query(str_point) {
 		var point = new Vector(parseInt(str_point[0]), parseInt(str_point[1]));
-		console.log("change", point);
 
 		var resp = this.lobby.game.grid.getPosn(point);
 		this.socket.send(`POINT|${point.x},${point.y}|${resp}`);
 	}
 
 	handle(message) {
-		console.log(message);
 		var data = message.split("|");
+		console.log(data);
 
 		if (data[0] == "JOIN") this.join(data[1]);
 		if (data[0] == "CHANGE") this.change(data[1].split(","));
